@@ -58,3 +58,6 @@
 
 (define (get-piece-metadata-field table field)
   (hash-table/get table field #f))
+
+(define (get-piece-metadata-fields table)
+  (hash-table/key-list table))
