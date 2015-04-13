@@ -23,6 +23,7 @@
 	  (note (pitch 'e 1 0) (/ 1 2)))
    ;; z/2
    (chord (note #f (/ 1 2)))
+   ;; [F/2e/2]
    (chord (note (pitch 'f 0 1) (/ 1 2))
 	  (note (pitch 'e 1 0) (/ 1 2)))
    (chord (note #f (/ 1 2)))
