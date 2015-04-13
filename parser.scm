@@ -27,7 +27,12 @@
         (header-lines (filter is-line-abc-header? file-as-list))
         (song-lines (remove is-line-abc-header? file-as-list)))
     (map (lambda (header-line) (parse-header-line metadata-table header-line)) header-lines)
-    (display (map (lambda (song-line) (parse-song-line song-line '())) song-lines))))
+    (display (flatten (map (lambda (song-line) (parse-song-line song-line '())) song-lines)))))
+
+(define (flatten list)
+      (cond ((null? list) '())
+            ((list? (car list)) (append (flatten (car list)) (flatten (cdr list))))
+            (else (cons (car list) (flatten (cdr list))))))
 
 (define (parse-header-line metadata-table header-line)
   (letrec* ((header-break-loc (string-search-forward ": " header-line))
