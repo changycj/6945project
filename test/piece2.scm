@@ -1,7 +1,5 @@
 ;;;; Convert Piece No. 2 abc file into Scheme data structure
 
-(load "music.scm")
-
 (define t (make-piece-metadata-table))
 
 ;;; Add metadata

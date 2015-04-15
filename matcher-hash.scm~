@@ -1,0 +1,27 @@
+;;;; Map each chord difference to an integer that can bet digested by PS4 matchers
+
+(define make-chord-difference-table make-equal-hash-table)
+
+(define (chord-difference->int table chord-difference)
+  (hash-table/get table chord-difference #f))
+
+(define (add-chord-difference->int table chord-difference)
+  (let ((key 1))
+    (hash-table/put! table chord-difference key)
+    key))
+
+(define (chord-differences->ints . chord-differences)
+  (let ((vec (make-vector (length chord-differences)))
+	(table (make-chord-difference-table)))
+    (let iter ((ind 0))
+      (if (= ind (length chord-differences))
+	  (vector->list vec)
+	  (let ((chord-difference (list-ref chord-differences ind)))
+	    (let ((val (chord-difference->int table chord-difference)))
+	      (vector-set! vec
+			   ind
+			   (if val
+			       val
+			       (add-chord-difference->int table chord-difference)))
+	      (iter (+ ind 1))))))))		    
+				     

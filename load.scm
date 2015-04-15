@@ -4,7 +4,6 @@
 (load "diff.scm")
 (load "parser.scm")
 (load "scm2abc.scm")
+(load "matcher-hash.scm")
 
-
-;;; Test files
-(load "piece2.scm")
+(load "test/piece2.scm")

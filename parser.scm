@@ -162,9 +162,6 @@
 (define (is-line-abc-header? line)
   (re-string-match header-regex line))
 
-(abc-file->scheme "piece2.abc")
-
-
 
 
 
