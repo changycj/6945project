@@ -1,6 +1,0 @@
-;;;; Matcher
-
-(define (find-pattern difference-profile)
-  (let ((ints (difference-profile->ints difference-profile)))
-    (pp ints)
-    (list-head difference-profile 10)))

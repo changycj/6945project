@@ -53,3 +53,9 @@
    (chord (note (pitch 'b 0 0) 3/2))))
 
 (define piece2 (piece t s))
+
+(define piece2-pattern (find-pattern piece2))
+
+(define piece2-phrase (pattern->scm piece2-pattern piece2))
+
+(scm->abc piece2-phrase "piece2-phrase")
