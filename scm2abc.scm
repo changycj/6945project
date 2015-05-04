@@ -4,7 +4,7 @@
 The converter doesn't take into account into triplets and etc
 |#
 
-(define (convert-to-abc piece filename)
+(define (scm->abc piece filename)
   (call-with-output-file filename
     (lambda (port)
       (write-abc-headers piece port)

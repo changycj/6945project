@@ -53,8 +53,8 @@
      (compute-beat-delta (note-length note1)
 			 (note-length note2)))))
 
-(define (compute-difference-profile song)
-  (let ((chords (song-chords song)))
+(define (scm->difference-profile piece)
+  (let ((chords (song-chords (piece-song piece))))
     (let iter ((ind 0)
            (vec (make-vector (- (length chords) 1))))
       (cond ((= ind (vector-length vec))
