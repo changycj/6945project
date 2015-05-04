@@ -14,9 +14,11 @@
 ;;(define HIGHBASENOTE "\\[a-g]
 ;;(define LOWBASENOTE "\\[A-G]
 (define hilonote-regex "\\([a-g]\\|[A-G]\\|z\\)")
+(define hinote-regex "[a-g]")
+(define lonote-regex "[A-G]")
 ;(define hilonote-regex "\\(A\\|B\\|C\\|D\\|E\\|F\\|G\\|a\\|b\\|c\\|d\\|e\\|f\\|g\\)")
 
-(define hilooctave-regex "\\(\\,*\\|\\'*\\)")
+(define hilooctave-regex "\\(,*\\|'*\\)")
 (define duration-regex "[0-9]*/?[0-9]*")
 ;;(define DOWNOCTAVE "\\,*
 ;;(define UPOCTAVE "\\'*
@@ -57,7 +59,8 @@
         (header-lines (filter is-line-abc-header? file-as-list))
         (song-lines (remove is-line-abc-header? file-as-list)))
     (map (lambda (header-line) (abc-header-line->scheme metadata-table header-line)) header-lines)
-    (display (map (lambda (song-line) (abc-song-line->scheme song-line '())) song-lines))))
+    ;(display (map (lambda (song-line) (abc-song-line->scheme song-line '())) song-lines))))
+    (map (lambda (song-line) (abc-song-line->scheme song-line '())) song-lines)))
 
 ;; from stack overflow
 (define (flatten list)
@@ -76,27 +79,36 @@
     (add-piece-metadata-field! metadata-table (string->symbol header-type) header-content)))
 
 (define (abc-song-line->scheme song-line chord-list)
+  ;(display "abc-song-line->scheme")
   (letrec* ((chord-break-loc (string-search-forward " " song-line)))
+    (newline)(display "hello")(newline)
+    (newline)(display chord-break-loc)(newline)
+    (newline)(display song-line)(newline)
     (if (number? chord-break-loc)
       (let ((chord-string (string-head song-line chord-break-loc))
            (line-remainder (string-tail song-line (+ 1 chord-break-loc))))
         (abc-song-line->scheme line-remainder (append chord-list (list (abc-chord->scheme chord-string '())))))
-      chord-list)))
+      (let ((chord-string song-line)
+           (line-remainder ""))
+        (append chord-list (list (abc-chord->scheme chord-string '())))))))
+
+
 
 ;; converts an abc chord to a scheme chord
 (define (abc-chord->scheme chord-string note-list)
   (string-replace! chord-string #\[ #\ )
   (string-replace! chord-string #\] #\ )
   (string-replace! chord-string #\| #\ )
+  ;(display "abc-chord->scheme")
 
   (letrec* ((trimmed (string-trim chord-string))
             (note-tuple (abc-notes->scheme trimmed))
-            (chord-remainder (cdr note-tuple)))
+            (chord-remainder (cdr note-tuple))
+            (new-note-list (append note-list (list (car note-tuple)))))
   (newline)(display chord-remainder)(newline)
   (if (eq? 0 (string-length chord-remainder))
-    note-list
-    (abc-chord->scheme chord-remainder 
-      (append note-list (list (car note-tuple)))))))
+    new-note-list
+    (abc-chord->scheme chord-remainder new-note-list))))
 
   ;(display "\n")
   ;(display (string-trim chord-string))
@@ -134,29 +146,57 @@
   (parse-optional-param hilooctave-regex string))
 
 (define (abc-parse-duration string)
+  (newline)(display string)
   (parse-optional-param duration-regex string))
 
 ;; returns list of (note, remainder); 
 ;; the remainder is the rest of the string for further parsing
 (define (abc-notes->scheme string)
   (letrec* ((accidentals (abc-parse-accidental string))
-            (octave (abc-parse-hilooctave (cdr accidentals)))
-            (parsed-note (abc-parse-hilonote (cdr octave)))
-            (duration (abc-parse-duration (cdr parsed-note)))
+            ;(octave (abc-parse-hilooctave (cdr accidentals)))
+            (parsed-note (abc-parse-hilonote (cdr accidentals)))
+            (octave (abc-parse-hilooctave (cdr parsed-note)))
+            (duration (abc-parse-duration (cdr octave)))
             (the-note (note (pitch 
                               (string->symbol (car parsed-note))
-                              (car octave)  ;; TODO octave to number
-                              (car accidentals)) ;; TODO accidental to number
-                         (car duration)))) ;; convert to numeric
+                              (abc-octave->scm-octave (car parsed-note) (car octave))
+                              (abc-accdental->scm-accidental (car accidentals)))
+                              (abc-duration->scm-duration (car duration)))))
   (display "making note")
   (newline) (display "note:\t\t") (display (car parsed-note)) 
   (newline) (display "octave:\t\t") (display (car octave))
   (newline) (display "accidental:\t") (display (car accidentals))
   (newline) (display "duration:\t") (display (car duration))
+
+  ;; return a tuple of (the note object, rest of the un-processed string)
   (cons the-note (cdr duration))
-))
+  ))
 
+;; A, B, C, D, E, F, and G start at octave = 0 and decrease by 1 for every , following them
+;; a, b, c, d, e, f, g start at octave = 1 and increase by 1 for every ' following them
+;; example: A,,, has octave = -3
+;; example: a'' has octave = 3
+(define (abc-octave->scm-octave string-note abc-octave)
+  ;; if string-note is upper-case, octave starts at 0
+  ;; if string-note is lower-case, octave starts at 1
+  ;(display "OCTAVE INFO DISPLAYED BELOW")
+  (newline)
+  (display "note: ")(display string-note)
+  (newline)
+  (display "octave: ")(display abc-octave)
+  (newline)
+  (if (re-string-match lonote-regex string-note)
+      (- 0 (length (string-search-all "," abc-octave)))
+      (+ 1 (length (string-search-all "'" abc-octave)))
+  ) ;; end if
+) ;; end function
 
+(define (abc-accdental->scm-accidental abc-accdental)
+  abc-accdental)
+
+(define (abc-duration->scm-duration abc-duration)
+  ;(string->number abc-duration))
+  abc-duration)
 
 ;; check if the line is part of the header
 (define (is-line-abc-header? line)
