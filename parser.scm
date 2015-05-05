@@ -34,6 +34,8 @@
 ;(define ENDMEASURE "\\(\|\])|(\|{1,2})|(\[\|)
 ;(define MUSIC "\\(NOTEELEMENT)|(REPEAT)|(ENDMEASURE)|(TUPLET)
 
+(define accidental-table (make-strong-eq-hash-table))
+
 
 ;; converts a .abc file to our scheme music language
 (define (abc-file->scheme filename)
@@ -60,7 +62,12 @@
         (song-lines (remove is-line-abc-header? file-as-list)))
     (map (lambda (header-line) (abc-header-line->scheme metadata-table header-line)) header-lines)
     ;(display (map (lambda (song-line) (abc-song-line->scheme song-line '())) song-lines))))
-    (apply song (apply append (map (lambda (song-line) (abc-song-line->scheme song-line '())) song-lines)))))
+    (apply song  
+      ;; strip out empty lists (measures)
+      (remove null? 
+        ;; flat ((chord chord chord) (chord chord)) into (chord chord chord chord chord) 
+        (apply append 
+          (map (lambda (song-line) (abc-song-line->scheme song-line '())) song-lines))))))
 
 ;; from stack overflow
 (define (flatten list)
@@ -98,17 +105,22 @@
 (define (abc-chord->scheme chord-string note-list)
   (string-replace! chord-string #\[ #\ )
   (string-replace! chord-string #\] #\ )
-  (string-replace! chord-string #\| #\ )
-  ;(display "abc-chord->scheme")
-
-  (letrec* ((trimmed (string-trim chord-string))
-            (note-tuple (abc-notes->scheme trimmed))
-            (chord-remainder (cdr note-tuple))
-            (new-note-list (append note-list (list (car note-tuple)))))
-  (newline)(display chord-remainder)(newline)
-  (if (eq? 0 (string-length chord-remainder))
-    (apply chord new-note-list)
-    (abc-chord->scheme chord-remainder new-note-list))))
+  ;(string-replace! chord-string #\| #\ )
+  (display "abc-chord->scheme:::")
+  (display chord-string) (newline)
+  (if (string=? chord-string "|")
+     (begin 
+        (display "found measure -- resetting accidentals")(newline)
+        (hash-table/clear! accidental-table)
+        '())
+    (letrec* ((trimmed (string-trim chord-string))
+              (note-tuple (abc-notes->scheme trimmed))
+              (chord-remainder (cdr note-tuple))
+              (new-note-list (append note-list (list (car note-tuple)))))
+    (newline)(display chord-remainder)(newline)
+    (if (eq? 0 (string-length chord-remainder))
+      (apply chord new-note-list)
+      (abc-chord->scheme chord-remainder new-note-list)))))
 
   ;(display "\n")
   ;(display (string-trim chord-string))
@@ -157,18 +169,18 @@
             (parsed-note (abc-parse-hilonote (cdr accidentals)))
             (octave (abc-parse-hilooctave (cdr parsed-note)))
             (duration (abc-parse-duration (cdr octave)))
+            (note-of-note (abc-note->scm-note (car parsed-note)))
+            (note-octave (abc-octave->scm-octave (car parsed-note) (car octave)))
+            (note-accidental (abc-accidental->scm-accidental (car accidentals) note-of-note))
             (the-note (note (pitch 
-                              (abc-note->scm-note (car parsed-note))
-                              ;(string->symbol (car parsed-note))
-                              (abc-octave->scm-octave (car parsed-note) (car octave))
-                              (abc-accidental->scm-accidental (car accidentals)))
-                              (abc-duration->scm-duration (car duration)))))
+                              note-of-note note-octave note-accidental)
+                            (abc-duration->scm-duration (car duration)))))
   (newline)
   (display "making note")
-  (newline) (display "note:\t\t") (display (car parsed-note)) 
-  (newline) (display "octave:\t\t") (display (car octave))
-  (newline) (display "accidental:\t") (display (car accidentals))
-  (newline) (display "duration:\t") (display (car duration))
+  (newline) (display "note:\t\t")     (display note-of-note)
+  (newline) (display "octave:\t\t")   (display note-octave)
+  (newline) (display "accidental:\t") (display note-accidental)
+  (newline) (display "duration:\t")   (display (car duration))
 
   ;; return a tuple of (the note object, rest of the un-processed string)
   (cons the-note (cdr duration))
@@ -205,8 +217,22 @@
   ) ;; end if
 ) ;; end function
 
-(define (abc-accidental->scm-accidental abc-accdental)
-  abc-accdental)
+(define (accidental->number abc-accidental)
+  (display "it is: ")  (display abc-accidental)
+  (newline)
+  (cond ((string=? abc-accidental "_") -1)
+        ((string=? abc-accidental "__") -2)
+        ((string=? abc-accidental "=") 0)
+        ((string=? abc-accidental "^") 1)
+        ((string=? abc-accidental "^^") 2)
+        (else (error "unrecognized accidental")))
+)
+
+(define (abc-accidental->scm-accidental abc-accidental current-note)
+  (if (not (= 0 (string-length abc-accidental)))
+        (hash-table/put! accidental-table current-note (accidental->number abc-accidental)))
+    ;; last argument to hash-table/get is default value (natural = 0)
+    (hash-table/get accidental-table current-note 0))
 
 ;; abc-duration is of the form "", "/2", "3/2", "2"
 (define (abc-duration->scm-duration abc-duration)
