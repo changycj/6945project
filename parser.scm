@@ -62,12 +62,12 @@
         (song-lines (remove is-line-abc-header? file-as-list)))
     (map (lambda (header-line) (abc-header-line->scheme metadata-table header-line)) header-lines)
     ;(display (map (lambda (song-line) (abc-song-line->scheme song-line '())) song-lines))))
-    (apply song  
+    (piece metadata-table (apply song  
       ;; strip out empty lists (measures)
       (remove null? 
         ;; flat ((chord chord chord) (chord chord)) into (chord chord chord chord chord) 
         (apply append 
-          (map (lambda (song-line) (abc-song-line->scheme song-line '())) song-lines))))))
+          (map (lambda (song-line) (abc-song-line->scheme song-line '())) song-lines)))))))
 
 ;; from stack overflow
 (define (flatten list)

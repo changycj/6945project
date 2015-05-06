@@ -6,3 +6,7 @@
 (load "matcher-diff.scm")
 (load "matcher-hash.scm")
 (load "matcher-match.scm")
+
+;(load "test/piece2.scm")
+
+(load "test.scm")
