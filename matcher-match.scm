@@ -12,7 +12,7 @@
             (valid-offsets (iota (+ 1 (- (length L) sublist-length)) 0))
             (sublists (map 
               (lambda (i) (sublist L i (+ i sublist-length))) valid-offsets)))
-    (display "sublists (sublist-length=")(display sublist-length)(display sublists) (newline)
+    ;(display "sublists (sublist-length=")(display sublist-length)(display sublists) (newline)
     (for-each (lambda (sublist) (hash-table/put! frequencies sublist 
                             (+ 1 (hash-table/get frequencies sublist 0)))) sublists)
     (letrec* ((results (hash-table->alist frequencies))
@@ -21,8 +21,8 @@
           (argmax (argmax-with-max substring-freqs))
           (best-i (car argmax))
           (best-freq (cadr argmax)))
-      (display results)(newline)
-      (display argmax) (newline)
+      ;(display results)(newline)
+      ;(display argmax) (newline)
       (list (list-ref substring-keys best-i) best-freq)
   )))
 
@@ -37,7 +37,7 @@
                 (lambda (x y) (if (= (cadr x) (cadr y))
                                 (> (length (car x)) (length (car y)))
                                 (> (cadr x) (cadr y)))))))
-    (display "best overall")(display (car best-overall))(newline)
+    ;(display "best overall")(display (car best-overall))(newline)
     (car best-overall)))
 
 
