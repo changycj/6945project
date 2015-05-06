@@ -47,7 +47,35 @@
       (pp ints)
       ;; find the most commonly occuring pattern in the music
       ;; with a minimum length 1 and a maximum length N (length of music)
-      (find-longest-most-common-substring ints 3 (length ints)))))
+      (let ( (sublist-and-freq (find-longest-most-common-substring ints 3 (length ints))) )
+        (list 
+          (let ( (sublist-occurences (find-sublist-indices ints (car sublist-and-freq))) )
+            (if (= 0 (length sublist-occurences))
+                (error "sublist not found in list")
+                (- (car sublist-occurences) 1))) ;; index of the first occurence of the sublist
+          (length (car sublist-and-freq)))))))
+
+;; finds all the indices of a sublist if it is contained in a list L
+;; returns an empty list if the sublist is not found in list L
+(define (find-sublist-indices L sub-list)
+  (let ((len (+ (length L) 1) ))
+    (let loop ((L (member (car sub-list) L))
+      (sub-list2 sub-list)
+      (ans '()))
+      (cond ((not L) (reverse ans))
+        ((null? sub-list2)
+          (loop (member (car sub-list) L)
+            sub-list
+            (cons (- len (length L) (length sub-list)) ans)))
+        ((null? L) (reverse ans))
+        ((= (car L) (car sub-list2))
+          (loop (cdr L)
+            (cdr sub-list2)
+            ans))
+        (else
+          (loop (member (car sub-list) L)
+            sub-list
+            ans))))))
 
 (define (pattern->scm pattern piece)
   (let ((start-ind (car pattern))
