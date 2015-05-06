@@ -7,12 +7,12 @@
       (car sorted)))
 
 (define (find-most-common-substring-of-length L sublist-length)
-  ;(display "length")(display (iota (- (length L) sublist-length) 1))(display L)
+;; (display "length")(display (iota (- (length L) sublist-length) 1))(display L)
   (letrec* ((frequencies (make-equal-hash-table))
-        (valid-offsets (iota (+ 1 (- (length L) sublist-length)) 0))
-        (sublists (map 
-          (lambda (i) (sublist L i (+ i sublist-length))) valid-offsets)))
-;;    (display "sublists")(display sublists) (newline)
+            (valid-offsets (iota (+ 1 (- (length L) sublist-length)) 0))
+            (sublists (map 
+              (lambda (i) (sublist L i (+ i sublist-length))) valid-offsets)))
+    (display "sublists (sublist-length=")(display sublist-length)(display sublists) (newline)
     (for-each (lambda (sublist) (hash-table/put! frequencies sublist 
                             (+ 1 (hash-table/get frequencies sublist 0)))) sublists)
     (letrec* ((results (hash-table->alist frequencies))
@@ -31,7 +31,7 @@
 (define (find-longest-most-common-substring L min-length max-length)
   ;; best-substrings is list of (substring, frequency)
   (letrec* ((best-substrings (map (lambda (i) (find-most-common-substring-of-length L i)) 
-                                          (iota (- (min (length L) max-length) 1) min-length)))
+                                          (iota (- (+ 1 (min (length L) max-length)) min-length) min-length)))
             (best-overall (sort best-substrings
                 ;; sort by frequency and then by substring length
                 (lambda (x y) (if (= (cadr x) (cadr y))
@@ -47,7 +47,7 @@
       (pp ints)
       ;; find the most commonly occuring pattern in the music
       ;; with a minimum length 1 and a maximum length N (length of music)
-      (find-longest-most-common-substring ints 1 (length ints)))))
+      (find-longest-most-common-substring ints 3 (length ints)))))
 
 (define (pattern->scm pattern piece)
   (let ((start-ind (car pattern))
