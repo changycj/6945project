@@ -77,11 +77,11 @@
             sub-list
             ans))))))
 
-(define (pattern->scm pattern piece)
+(define (pattern->scm pattern peace)
   (let ((start-ind (car pattern))
 	(pattern-length (cadr pattern)))
-    (piece (piece-metadata piece)
+    (piece (piece-metadata peace)
 	   (cons 'song
-		 (sublist (song-chords (piece-song piece))
+		 (sublist (song-chords (piece-song peace))
 			  start-ind
 			  (+ start-ind pattern-length))))))
