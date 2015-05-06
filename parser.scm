@@ -79,10 +79,10 @@
   (letrec* ((header-break-loc (string-search-forward ": " header-line))
            (header-type (string-head header-line header-break-loc))
            (header-content (string-tail header-line (+ 2 header-break-loc))))
-    (display header-type)
-    (display ": ")
-    (display header-content)
-    (display "\n")
+    ;(display header-type)
+    ;(display ": ")
+    ;(display header-content)
+    ;(display "\n")
     (add-piece-metadata-field! metadata-table (string->symbol header-type) header-content)))
 
 (define (abc-song-line->scheme song-line chord-list)
@@ -106,18 +106,18 @@
   (string-replace! chord-string #\[ #\ )
   (string-replace! chord-string #\] #\ )
   ;(string-replace! chord-string #\| #\ )
-  (display "abc-chord->scheme:::")
-  (display chord-string) (newline)
+  ;(display "abc-chord->scheme:::")
+  ;(display chord-string) (newline)
   (if (string=? chord-string "|")
      (begin 
-        (display "found measure -- resetting accidentals")(newline)
+        ;(display "found measure -- resetting accidentals")(newline)
         (hash-table/clear! accidental-table)
         '())
     (letrec* ((trimmed (string-trim chord-string))
               (note-tuple (abc-notes->scheme trimmed))
               (chord-remainder (cdr note-tuple))
               (new-note-list (append note-list (list (car note-tuple)))))
-    (newline)(display chord-remainder)(newline)
+    ;(newline)(display chord-remainder)(newline)
     (if (eq? 0 (string-length chord-remainder))
       (apply chord new-note-list)
       (abc-chord->scheme chord-remainder new-note-list)))))
@@ -172,15 +172,17 @@
             (note-of-note (abc-note->scm-note (car parsed-note)))
             (note-octave (abc-octave->scm-octave (car parsed-note) (car octave)))
             (note-accidental (abc-accidental->scm-accidental (car accidentals) note-of-note))
-            (the-note (note (pitch 
-                              note-of-note note-octave note-accidental)
+            (the-note (note (if (equal? "z" (car parsed-note))
+                              #f
+                              (pitch 
+                                note-of-note note-octave note-accidental))
                             (abc-duration->scm-duration (car duration)))))
-  (newline)
-  (display "making note")
-  (newline) (display "note:\t\t")     (display note-of-note)
-  (newline) (display "octave:\t\t")   (display note-octave)
-  (newline) (display "accidental:\t") (display note-accidental)
-  (newline) (display "duration:\t")   (display (car duration))
+  ;(newline)
+  ;(display "making note")
+  ;(newline) (display "note:\t\t")     (display note-of-note)
+  ;(newline) (display "octave:\t\t")   (display note-octave)
+  ;(newline) (display "accidental:\t") (display note-accidental)
+  ;(newline) (display "duration:\t")   (display (car duration))
 
   ;; return a tuple of (the note object, rest of the un-processed string)
   (cons the-note (cdr duration))
@@ -196,7 +198,9 @@
   ;(display (string->symbol (string-downcase abc-note)))
   ;(newline)
   ;(string->symbol abc-note))
-  (string->symbol (string-downcase abc-note)))
+  (if (equal? "z" abc-note)
+      #f
+      (string->symbol (string-downcase abc-note))))
 
 ;; A, B, C, D, E, F, and G start at octave = 0 and decrease by 1 for every , following them
 ;; a, b, c, d, e, f, g start at octave = 1 and increase by 1 for every ' following them
@@ -218,8 +222,8 @@
 ) ;; end function
 
 (define (accidental->number abc-accidental)
-  (display "it is: ")  (display abc-accidental)
-  (newline)
+  ;(display "it is: ")  (display abc-accidental)
+  ;(newline)
   (cond ((string=? abc-accidental "_") -1)
         ((string=? abc-accidental "__") -2)
         ((string=? abc-accidental "=") 0)
