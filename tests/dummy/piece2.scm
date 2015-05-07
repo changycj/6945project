@@ -54,7 +54,7 @@
 
 (define piece2 (piece t s))
 
-(define piece2-pattern (find-pattern piece2))
+(define piece2-pattern (find-pattern piece2 3))
 
 (define piece2-phrase (pattern->scm piece2-pattern piece2))
 

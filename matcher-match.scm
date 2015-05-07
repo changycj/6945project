@@ -41,18 +41,21 @@
     (car best-overall)))
 
 
-(define (find-pattern piece)
-  (pp "Find patterm")
+(define (find-pattern piece k)
+  (pp "find-pattern")
   (let ((difference-profile (scm->difference-profile piece)))
     (pp "difference-profile")
     (pp difference-profile)
     (let ((ints (difference-profile->ints difference-profile)))
+      (pp "difference-profile-ints")
       (pp ints)
       ;; find the most commonly occuring pattern in the music
       ;; with a minimum length 5 and a maximum length N (length of music)
-      (let ( (sublist-and-freq (find-longest-most-common-substring ints 10 (length ints))) )
+      (let ( (sublist-and-freq (find-longest-most-common-substring ints k (length ints))) )
         (list 
           (let ( (sublist-occurences (find-sublist-indices ints (car sublist-and-freq))) )
+            (pp "number of times pattern occurs: ")
+            (pp (length sublist-occurences))
             (if (= 0 (length sublist-occurences))
                 (error "sublist not found in list")
                 (- (car sublist-occurences) 1))) ;; index of the first occurence of the sublist
