@@ -49,8 +49,8 @@
     (let ((ints (difference-profile->ints difference-profile)))
       (pp ints)
       ;; find the most commonly occuring pattern in the music
-      ;; with a minimum length 1 and a maximum length N (length of music)
-      (let ( (sublist-and-freq (find-longest-most-common-substring ints 3 (length ints))) )
+      ;; with a minimum length 5 and a maximum length N (length of music)
+      (let ( (sublist-and-freq (find-longest-most-common-substring ints 10 (length ints))) )
         (list 
           (let ( (sublist-occurences (find-sublist-indices ints (car sublist-and-freq))) )
             (if (= 0 (length sublist-occurences))
