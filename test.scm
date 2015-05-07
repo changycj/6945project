@@ -9,4 +9,4 @@
 
 (define piece-phrase (pattern->scm piece-pattern piece-scm))
 
-(scm->abc piece-phrase "tests/barbie/barbie-out")
+(scm->abc piece-phrase "tests/barbie/barbie-exact")
