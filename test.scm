@@ -5,9 +5,10 @@
 ;;  in-file-name: the name of an ABC file
 ;;  out-file-name: the name of a file to write the chorus to
 ;;  k: minimum number of chords to look for in chorus
-(define (find-chorus in-file-name out-file-name k)
+;;  matching-scheme: 'exact-pitch-matching or 'exact-matching
+(define (find-chorus in-file-name out-file-name k matching-scheme)
   (letrec* ( (piece-scm (abc-file->scheme in-file-name))
-             (piece-pattern (find-pattern piece-scm k))
+             (piece-pattern (find-pattern piece-scm k matching-scheme))
              (piece-chorus (pattern->scm piece-pattern piece-scm)) )
     (newline)
     (pp "converting abc file to scheme music...")
@@ -28,7 +29,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; occurs 2 times
-(find-chorus "tests/piece2/piece2.abc" "tests/piece2/piece2-out.abc" 3)
+(find-chorus "tests/piece2/piece2.abc" "tests/piece2/piece2-out.abc" 3 'exact-pitch-matching)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Barbie Girl
@@ -36,13 +37,13 @@
 
 ;; finds 9 chords instead of 5 because the string of 9 chords are repeated just as often as 5
 ;; occurs 10 times
-(find-chorus "tests/barbie/barbie.abc" "tests/barbie/barbie5-out.abc" 5)
+(find-chorus "tests/barbie/barbie.abc" "tests/barbie/barbie5-out.abc" 5 'exact-pitch-matching)
 
-(find-chorus "tests/barbie/barbie.abc" "tests/barbie/barbie9-out.abc" 9)
+(find-chorus "tests/barbie/barbie.abc" "tests/barbie/barbie9-out.abc" 9 'exact-pitch-matching)
 
 ;; finds 14 chords instead of 10 because the string of 10 chords are repeated just as often as 10
 ;; occurs 8 times
-(find-chorus "tests/barbie/barbie.abc" "tests/barbie/barbie10-out.abc" 10)
+(find-chorus "tests/barbie/barbie.abc" "tests/barbie/barbie10-out.abc" 10 'exact-pitch-matching)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 

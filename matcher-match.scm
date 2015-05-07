@@ -41,12 +41,12 @@
     (car best-overall)))
 
 
-(define (find-pattern piece k)
+(define (find-pattern piece k matching-scheme)
   (pp "find-pattern")
   (let ((difference-profile (scm->difference-profile piece)))
     (pp "difference-profile")
     (pp difference-profile)
-    (let ((ints (difference-profile->ints difference-profile)))
+    (let ((ints (difference-profile->ints difference-profile matching-scheme)))
       (pp "difference-profile-ints")
       (pp ints)
       ;; find the most commonly occuring pattern in the music

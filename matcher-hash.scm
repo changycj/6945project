@@ -49,9 +49,9 @@
 	      (vector-set! vec ind val)
 	      (iter (+ ind 1))))))))
 
-(define (difference-profile->ints difference-profile)
+(define (difference-profile->ints difference-profile matching-scheme)
   (chord-differences->ints
    (difference-profile-chord-differences difference-profile)
-   ;; SPECIFY MATCHING SCHEME HERE
-   'exact-matching))
+   ;; SPECIFY MATCHING SCHEME HERE: 'exact-pitch-matching or 'exact-matching
+   matching-scheme))
 				     
