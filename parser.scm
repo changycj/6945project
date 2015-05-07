@@ -76,9 +76,12 @@
             (else (cons (car list) (flatten (cdr list))))))
 
 (define (abc-header-line->scheme metadata-table header-line)
-  (letrec* ((header-break-loc (string-search-forward ": " header-line))
-           (header-type (string-head header-line header-break-loc))
-           (header-content (string-tail header-line (+ 2 header-break-loc))))
+  (letrec* ((header-content-loc (if (string-search-forward ": " header-line)
+                                2
+                                1))
+            (header-break-loc (string-search-forward ":" header-line))
+            (header-type (string-head header-line header-break-loc))
+            (header-content (string-tail header-line (+ header-content-loc header-break-loc))))
     ;(display header-type)
     ;(display ": ")
     ;(display header-content)
