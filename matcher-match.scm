@@ -42,7 +42,10 @@
 
 
 (define (find-pattern piece)
+  (pp "Find patterm")
   (let ((difference-profile (scm->difference-profile piece)))
+    (pp "difference-profile")
+    (pp difference-profile)
     (let ((ints (difference-profile->ints difference-profile)))
       (pp ints)
       ;; find the most commonly occuring pattern in the music
