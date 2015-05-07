@@ -53,5 +53,5 @@
   (chord-differences->ints
    (difference-profile-chord-differences difference-profile)
    ;; SPECIFY MATCHING SCHEME HERE
-   'exact-pitch-matching))
+   'exact-matching))
 				     
